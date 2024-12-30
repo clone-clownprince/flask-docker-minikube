@@ -31,27 +31,46 @@ jobs:
         docker push ${{ secrets.DOCKER_USERNAME }}/flask-app:${{ github.sha }}
 
   deploy:
-    needs: build
     runs-on: ubuntu-latest
 
     steps:
-    - name: Check out the code
-      uses: actions/checkout@v3
+      # Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Set up kubectl
-      uses: azure/setup-kubectl@v3
-      with:
-        version: 'v1.23.0'  # Specify the version of kubectl you want to use
+      # Decode and set up the kubeconfig
+      - name: Decode Kubeconfig and set it up
+        run: |
+          # Create the .kube directory if it doesn't exist
+          mkdir -p ~/.kube
+          
+          # Decode the kubeconfig secret and write it to ~/.kube/config
+          echo "$KUBE_CONFIG" | base64 -d > ~/.kube/config
 
-    - name: Set up kubeconfig
-      env:
-        KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}  # Store your kubeconfig as a GitHub secret
-      run: |
-        mkdir -p ~/.kube
-        echo "$KUBE_CONFIG" | base64 -d > ~/.kube/config
+      # Ensure Minikube is installed and the environment is set up
+      - name: Install Minikube
+        run: |
+          curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+          chmod +x minikube
+          sudo mv minikube /usr/local/bin/
+
+      # Start Minikube (use the correct driver if needed)
+      - name: Start Minikube
+        run: |
+          minikube start --driver=docker
+
+      # Set Kubeconfig path for Minikube (if using Minikube)
+      - name: Set Minikube Kubeconfig
+        run: |
+          echo "$(minikube -p minikube kubeconfig)" > ~/.kube/config
+
+      # Verify the kubeconfig and kubectl configuration
+      - name: Verify kubectl configuration
+        run: |
+          kubectl config view
+          kubectl get nodes
         
-
-    - name: Update Kubernetes Deployment
-      run: |
-        kubectl set image deployment/flask-app-deployment flask-app=${{ secrets.DOCKER_USERNAME }}/flask-app:${{ github.sha }}
-        kubectl rollout status deployment/flask-app-deployment
+      - name: Update Kubernetes Deployment
+        run: |
+          kubectl set image deployment/flask-app-deployment flask-app=${{ secrets.DOCKER_USERNAME }}/flask-app:${{ github.sha }}
+          kubectl rollout status deployment/flask-app-deployment
