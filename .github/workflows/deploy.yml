@@ -57,7 +57,7 @@ jobs:
       # Start Minikube (use the correct driver if needed)
       - name: Start Minikube
         run: |
-          minikube start --driver=docker
+          minikube start
 
       # Set Kubeconfig path for Minikube (if using Minikube)
       - name: Set Minikube Kubeconfig
