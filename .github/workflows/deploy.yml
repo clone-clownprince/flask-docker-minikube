@@ -32,37 +32,39 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
+    needs: build  # Ensure this job runs only if the build job is successful
 
     steps:
-      # Checkout the repository
       - name: Checkout code
         uses: actions/checkout@v3
 
       # Decode and set up the kubeconfig
       - name: Decode Kubeconfig and set it up
         run: |
-          # Create the .kube directory if it doesn't exist
           mkdir -p ~/.kube
-          
-          # Decode the kubeconfig secret and write it to ~/.kube/config
           echo "$KUBE_CONFIG" | base64 -d > ~/.kube/config
 
-      # Ensure Minikube is installed and the environment is set up
+      # Ensure Minikube is installed
       - name: Install Minikube
         run: |
           curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
           chmod +x minikube
           sudo mv minikube /usr/local/bin/
 
-      # Start Minikube (use the correct driver if needed)
+      # Start Minikube
       - name: Start Minikube
         run: |
-          minikube start
+          minikube start --driver=docker
 
       # Use Minikube's kubectl to configure kubectl for the cluster
       - name: Set Minikube Kubeconfig
         run: |
           minikube kubectl -- get pods
+
+      # Create flask-app deployment if not exists
+      - name: Create flask-app deployment if not exists
+        run: |
+          kubectl apply -f deployment.yaml
 
       # Verify kubectl configuration
       - name: Verify kubectl configuration
