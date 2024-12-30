@@ -59,14 +59,12 @@ jobs:
         run: |
           minikube start
 
-      # Set Kubeconfig path for Minikube (if using Minikube)
+      # Use Minikube's kubectl to configure kubectl for the cluster
       - name: Set Minikube Kubeconfig
         run: |
-          # Set the correct Kubeconfig for Minikube
-          echo "$(minikube -p minikube kubeconfig)" > ~/.kube/config
-          sleep 10
+          minikube kubectl -- get pods
 
-      # Verify the kubeconfig and kubectl configuration
+      # Verify kubectl configuration
       - name: Verify kubectl configuration
         run: |
           kubectl config view
