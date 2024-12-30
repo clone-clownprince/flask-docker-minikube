@@ -64,6 +64,7 @@ jobs:
         run: |
           # Set the correct Kubeconfig for Minikube
           echo "$(minikube -p minikube kubeconfig)" > ~/.kube/config
+          sleep 10
 
       # Verify the kubeconfig and kubectl configuration
       - name: Verify kubectl configuration
