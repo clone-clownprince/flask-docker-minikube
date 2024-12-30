@@ -47,6 +47,7 @@ jobs:
       env:
         KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}  # Store your kubeconfig as a GitHub secret
       run: |
+        mkdir -p ~/.kube
         echo "$KUBE_CONFIG" > ~/.kube/config
 
     - name: Update Kubernetes Deployment
