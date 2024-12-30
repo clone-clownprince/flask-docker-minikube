@@ -1,0 +1,23 @@
+# Ignore the Python virtual environment
+venv/
+env/
+.venv/
+
+# Ignore .git and .gitignore
+.git/
+.gitignore
+
+
+
+# Ignore logs and other unwanted files
+*.log
+*.bak
+*.tmp
+
+# Ignore IDE and editor folders
+.vscode/
+.idea/
+
+# OS-specific files
+.DS_Store
+Thumbs.db

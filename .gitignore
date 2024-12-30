@@ -1,0 +1,33 @@
+# Python
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.db
+*.sqlite3
+*.log
+
+# Virtual environment
+venv/
+env/
+ENV/
+.venv/
+
+
+
+# Kubernetes
+.kube/
+
+# IDEs and editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Misc
+*.bak
+*.tmp
