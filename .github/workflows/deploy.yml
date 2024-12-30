@@ -49,30 +49,9 @@ jobs:
       run: |
         mkdir -p ~/.kube
         echo "$KUBE_CONFIG" | base64 -d > ~/.kube/config
-
-    # Ensure Minikube is installed and the environment is set up
-    - name: Install Minikube
-    run: |
-      curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
-      chmod +x minikube
-      sudo mv minikube /usr/local/bin/
-    # Start Minikube (use the correct driver if needed)
-    - name: Start Minikube
-    run: |
-      minikube start --driver=docker
-
-    # Set Kubeconfig path for Minikube (if using Minikube)
-    - name: Set Minikube Kubeconfig
-    run: |
-      echo "$(minikube -p minikube kubeconfig)" > ~/.kube/config
-
-    # Verify the kubeconfig and kubectl configuration
-    - name: Verify kubectl configuration
-    run: |
-      kubectl config view
-      kubectl get nodes
+        
 
     - name: Update Kubernetes Deployment
-    run: |
-      kubectl set image deployment/flask-app-deployment flask-app=${{ secrets.DOCKER_USERNAME }}/flask-app:${{ github.sha }}
-      kubectl rollout status deployment/flask-app-deployment
+      run: |
+        kubectl set image deployment/flask-app-deployment flask-app=${{ secrets.DOCKER_USERNAME }}/flask-app:${{ github.sha }}
+        kubectl rollout status deployment/flask-app-deployment
