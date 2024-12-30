@@ -1,4 +1,4 @@
-name: Deploy to Kubernetes
+name: Deploy to Kubernetes with Helm
 
 on:
   push:
@@ -61,10 +61,22 @@ jobs:
         run: |
           minikube kubectl -- get pods
 
-      # Create flask-app deployment if not exists
-      - name: Create flask-app deployment if not exists
+      # Install Helm
+      - name: Install Helm
         run: |
-          kubectl apply -f deployment.yaml
+          curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+      # Package and deploy your custom Helm chart
+      - name: Package and deploy flask-app-chart
+        run: |
+          # Ensure the chart is packaged and available for deployment
+          helm package ./flask-app-chart
+
+          # Install or upgrade the Flask app deployment using your custom chart
+          helm upgrade --install flask-app ./flask-app-chart \
+            --set image.repository=${{ secrets.DOCKER_USERNAME }}/flask-app \
+            --set image.tag=${{ github.sha }} \
+            --set image.pullPolicy=Always
 
       # Verify kubectl configuration
       - name: Verify kubectl configuration
@@ -72,8 +84,7 @@ jobs:
           kubectl config view
           kubectl get nodes
 
-      # Update Kubernetes Deployment with new Docker image
-      - name: Update Kubernetes Deployment
+      # Verify the deployment status
+      - name: Verify deployment status
         run: |
-          kubectl set image deployment/flask-app-deployment flask-app=${{ secrets.DOCKER_USERNAME }}/flask-app:${{ github.sha }}
           kubectl rollout status deployment/flask-app-deployment
