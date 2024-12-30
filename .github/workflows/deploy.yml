@@ -62,6 +62,7 @@ jobs:
       # Set Kubeconfig path for Minikube (if using Minikube)
       - name: Set Minikube Kubeconfig
         run: |
+          # Set the correct Kubeconfig for Minikube
           echo "$(minikube -p minikube kubeconfig)" > ~/.kube/config
 
       # Verify the kubeconfig and kubectl configuration
@@ -69,7 +70,8 @@ jobs:
         run: |
           kubectl config view
           kubectl get nodes
-        
+
+      # Update Kubernetes Deployment with new Docker image
       - name: Update Kubernetes Deployment
         run: |
           kubectl set image deployment/flask-app-deployment flask-app=${{ secrets.DOCKER_USERNAME }}/flask-app:${{ github.sha }}
